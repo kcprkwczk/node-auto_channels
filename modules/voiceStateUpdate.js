@@ -21,7 +21,10 @@ module.exports = async function(oldState, newState, operations, client) {
         if (!operation) {
             const channel = client.channels.resolve(oldState.channelId);
             if (channel && channel.members.size === 0) {
-                channel.delete();
+                const isCorrectParent = channel.parent && operations.some(op => op.createRoomsParent === channel.parent.id);
+                if (isCorrectParent) {
+                    channel.delete();
+                }
             }
         }
     }
