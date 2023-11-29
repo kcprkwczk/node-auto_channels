@@ -1,4 +1,15 @@
-module.exports = async function(oldState, newState, operations, client) {
+const fs = require('fs');
+const path = require('path');
+
+async function loadConfig() {
+    const configPath = path.join(__dirname, '../config.json');
+    const configFile = fs.readFileSync(configPath, 'utf8');
+    return JSON.parse(configFile);
+}
+
+module.exports = async function(oldState, newState, client) {
+    const operations = await loadConfig();
+
     if (newState.channelId) {
         const operation = operations.find(op => op.joinToCreateNewRoomId === newState.channelId);
 
