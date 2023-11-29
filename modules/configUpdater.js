@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { Permissions } = require('discord.js');
 
 function reloadConfig() {
     delete require.cache[require.resolve('../config.json')];
@@ -8,10 +9,10 @@ function reloadConfig() {
 module.exports = {
     updateConfig: (message) => {
         if (message.content.startsWith('!setConfig ')) {
-            if (!message.member.permissions.has('ADMINISTRATOR')) {
-                message.reply('You do not have permission to use this command.');
-                return;
-            }
+           if(!message.member.permissions.has('Administrator')) {
+                   message.reply('You do not have permission to use this command.');
+                   return;
+           }
             const newConfig = message.content.slice('!setConfig '.length);
             if (newConfig.length === 0) {
                 message.reply('No new config provided. Please provide a new config in the format `!setConfig {newConfig}`');
