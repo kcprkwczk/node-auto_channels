@@ -29,7 +29,7 @@ function ensureServerConfigExists(config, serverId) {
 module.exports = {
     updateConfig: (message) => {
         if (message.content.startsWith('!setConfig ')) {
-            if (!message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+            if(!message.member.permissions.has('Administrator')) {
                 message.reply('You do not have permission to use this command.');
                 return;
             }
