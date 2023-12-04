@@ -8,13 +8,21 @@ async function loadConfig() {
 }
 
 module.exports = async function(oldState, newState, client) {
-    const operations = await loadConfig();
+    const config = await loadConfig();
+    const serverConfig = config.find(c => c.serverId === newState.guild.id);
+
+    if (!serverConfig) {
+        console.error(`Nie znaleziono konfiguracji dla serwera z ID: ${newState.guild.id}`);
+        return;
+    }
+
+    const operations = serverConfig.channels;
 
     if (newState.channelId) {
         const operation = operations.find(op => op.joinToCreateNewRoomId === newState.channelId);
 
         if (operation) {
-            const username = newState.member.nickname ? newState.member.nickname : newState.member.user.username;
+            const username = newState.member.nickname || newState.member.user.username;
             const newChannel = await newState.guild.channels.create({
                 name: `${operation.channelName} ${username}`,
                 type: 2,
@@ -22,20 +30,17 @@ module.exports = async function(oldState, newState, client) {
                 userLimit: operation.maxOnline,
                 permissionOverwrites: []
             });
-            newState.setChannel(newChannel);
+            await newState.setChannel(newChannel);
         }
     }
 
-    if (oldState.channelId) {
-        const operation = operations.find(op => op.joinToCreateNewRoomId === oldState.channelId);
-
-        if (!operation) {
-            const channel = client.channels.resolve(oldState.channelId);
-            if (channel && channel.members.size === 0) {
-                const isCorrectParent = channel.parent && operations.some(op => op.createRoomsParent === channel.parent.id);
-                if (isCorrectParent) {
-                    channel.delete();
-                }
+    if (oldState.channelId && (!newState.channelId || newState.channelId !== oldState.channelId)) {
+        const channel = client.channels.cache.get(oldState.channelId);
+        if (channel && channel.members.size === 0) {
+            const isCorrectParent = channel.parent && operations.some(op => op.createRoomsParent === channel.parentID);
+            const isManagedChannel = operations.some(op => op.joinToCreateNewRoomId !== oldState.channelId);
+            if (isCorrectParent && isManagedChannel) {
+                channel.delete().catch(console.error);
             }
         }
     }
