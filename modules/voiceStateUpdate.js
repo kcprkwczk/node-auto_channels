@@ -14,7 +14,7 @@ module.exports = async function(oldState, newState, client) {
         const operation = operations.find(op => op.joinToCreateNewRoomId === newState.channelId);
 
         if (operation) {
-            const username = newState.member.user.username;
+            const username = newState.member.nickname ? newState.member.nickname : newState.member.user.username;
             const newChannel = await newState.guild.channels.create({
                 name: `${operation.channelName} ${username}`,
                 type: 2,
