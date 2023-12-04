@@ -16,7 +16,7 @@ module.exports = async function(oldState, newState, client) {
         if (operation) {
             const username = newState.member.user.username;
             const newChannel = await newState.guild.channels.create({
-                name: `${operation.channelName} - ${username}`,
+                name: `${operation.channelName} ${username}`,
                 type: 2,
                 parent: operation.createRoomsParent,
                 userLimit: operation.maxOnline,
