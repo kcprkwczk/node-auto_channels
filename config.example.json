@@ -1,8 +1,19 @@
 [
   {
-    "joinToCreateNewRoomId": "",
-    "createRoomsParent": "",
-    "channelName": "",
-    "maxOnline": 0
+    "serverId": "",
+    "channels": [
+      {
+        "joinToCreateNewRoomId": "",
+        "createRoomsParent": "",
+        "channelName": "max-2",
+        "maxOnline": 2
+      },
+      {
+        "joinToCreateNewRoomId": "",
+        "createRoomsParent": "",
+        "channelName": "Max-3",
+        "maxOnline": 3
+      }
+    ]
   }
 ]

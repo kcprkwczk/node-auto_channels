@@ -11,15 +11,9 @@ function reloadConfig() {
 function ensureServerConfigExists(config, serverId) {
     const serverConfig = config.find(c => c.serverId === serverId);
     if (!serverConfig) {
-        const defaultChannelConfig = {
-            joinToCreateNewRoomId: "",
-            createRoomsParent: "",
-            channelName: "New Room",
-            maxOnline: 5
-        };
         const newServerConfig = {
             serverId: serverId,
-            channels: [defaultChannelConfig]
+            channels: []
         };
         config.push(newServerConfig);
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
@@ -35,24 +29,22 @@ module.exports = {
             }
             const newConfig = message.content.slice('!setConfig '.length);
             if (newConfig.length === 0) {
-                message.reply('No new config provided. Please provide a new config in the format `!setConfig {newConfig}`');
+                message.reply('No new config provided. Please provide a new config in the format !setConfig {newConfig}');
                 return;
             }
             try {
-                const parsedConfig = JSON.parse(newConfig);
-                const isValid = Array.isArray(parsedConfig) && parsedConfig.every(item => {
-                    return item.hasOwnProperty('serverId') && Array.isArray(item.channels) && item.channels.every(channel => {
-                        return channel.hasOwnProperty('joinToCreateNewRoomId') &&
-                            channel.hasOwnProperty('createRoomsParent') &&
-                            channel.hasOwnProperty('channelName') &&
-                            channel.hasOwnProperty('maxOnline');
-                    });
-                });
-                if (!isValid) {
-                    message.reply('Invalid config. Please make sure the config has the right structure.');
+                const parsedChannels = JSON.parse(newConfig);
+                // Ensure that the provided configuration is an array of channels
+                if (!Array.isArray(parsedChannels)) {
+                    message.reply('Invalid config. The provided config should be an array of channel configurations.');
                     return;
                 }
-                fs.writeFileSync(configPath, JSON.stringify(parsedConfig, null, 2));
+                const serverId = message.guild.id;
+                const config = reloadConfig();
+                ensureServerConfigExists(config, serverId);
+                const serverConfig = config.find(c => c.serverId === serverId);
+                serverConfig.channels = parsedChannels;
+                fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
                 message.reply('Config updated successfully!');
             } catch (error) {
                 console.error('Failed to update config:', error);
