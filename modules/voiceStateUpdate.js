@@ -33,15 +33,11 @@ module.exports = async function(oldState, newState, client) {
             await newState.setChannel(newChannel);
         }
     }
-    if (oldState.channelId && !newState.channelId) {
-        const channel = oldState.guild.channels.cache.get(oldState.channelId);
-        const isBotCreatedChannel = operations.some(op => op.createRoomsParent === channel.parentId);
-        if (channel && isBotCreatedChannel && channel.members.size === 0) {
-            try {
-                await channel.delete();
-                console.log(`Usunięto kanał: ${channel.name}`);
-            } catch (error) {
-                console.error(`Nie udało się usunąć kanału: ${error}`);
+    if (oldState.channelId) {
+        if (oldState.channel.members.size === 0) {
+            const operation = operations.find(op => op.createRoomsParent === oldState.channel.parentId);
+            if (operation) {
+                oldState.channel.delete();
             }
         }
     }
